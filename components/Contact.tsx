@@ -1,9 +1,59 @@
 
-import React from 'react';
-import { CONTACT, COMPANY_NAME } from '../constants';
-import { Phone, Mail, MapPin, Send } from 'lucide-react';
+import React, { useState } from 'react';
+import { CONTACT, COMPANY_NAME, EMAILJS_CONFIG, ADMIN_EMAIL } from '../constants';
+import { Phone, Mail, MapPin, Send, CheckCircle, Loader2 } from 'lucide-react';
+import emailjs from '@emailjs/browser';
 
 const Contact: React.FC = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: 'software',
+    message: ''
+  });
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+
+    const templateParams = {
+      from_name: formData.name,
+      from_email: formData.email,
+      subject: formData.subject,
+      message: formData.message,
+      company_name: COMPANY_NAME
+    };
+
+    try {
+      // Send to Client (acknowledgment)
+      await emailjs.send(
+        EMAILJS_CONFIG.SERVICE_ID,
+        EMAILJS_CONFIG.CONTACT_TEMPLATE_ID,
+        { ...templateParams, to_email: formData.email },
+        EMAILJS_CONFIG.PUBLIC_KEY
+      );
+
+      // Send notification to Admin
+      await emailjs.send(
+        EMAILJS_CONFIG.SERVICE_ID,
+        EMAILJS_CONFIG.CONTACT_TEMPLATE_ID,
+        { ...templateParams, to_email: ADMIN_EMAIL, from_name: `CONTACT: ${formData.name}` },
+        EMAILJS_CONFIG.PUBLIC_KEY
+      );
+
+      setSuccess(true);
+      setFormData({ name: '', email: '', subject: 'software', message: '' });
+    } catch (err: any) {
+      console.error('EmailJS Error:', err);
+      setError('Failed to send message. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <section id="contact" className="py-24 px-6 relative overflow-hidden">
       <div className="max-w-7xl mx-auto">
@@ -53,14 +103,32 @@ const Contact: React.FC = () => {
           <div className="relative">
             <div className="p-8 md:p-12 rounded-[2rem] glass relative z-10">
               <h3 className="text-2xl font-bold mb-8">Send a Message</h3>
-              <form className="space-y-6" onSubmit={(e) => e.preventDefault()}>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {success ? (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-green-500/10 text-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle size={32} />
+                  </div>
+                  <h4 className="text-xl font-bold mb-2">Message Sent!</h4>
+                  <p className="text-gray-400 mb-6">We'll get back to you within 24 hours.</p>
+                  <button 
+                    onClick={() => setSuccess(false)}
+                    className="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold"
+                  >
+                    Send Another
+                  </button>
+                </div>
+              ) : (
+                <form className="space-y-6" onSubmit={handleSubmit}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Name</label>
                     <input 
                       type="text" 
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-colors"
                       placeholder="John Doe"
+                      value={formData.name}
+                      onChange={(e) => setFormData({...formData, name: e.target.value})}
+                      required
                     />
                   </div>
                   <div>
@@ -69,15 +137,22 @@ const Contact: React.FC = () => {
                       type="email" 
                       className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-colors"
                       placeholder="john@example.com"
+                      value={formData.email}
+                      onChange={(e) => setFormData({...formData, email: e.target.value})}
+                      required
                     />
                   </div>
                 </div>
                 <div>
                   <label className="block text-xs font-bold uppercase tracking-widest text-gray-500 mb-2">Subject</label>
-                  <select className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-colors text-gray-400 appearance-none">
-                    <option value="software">Software Development</option>
-                    <option value="finance">Financial Services</option>
-                    <option value="other">General Inquiry</option>
+                  <select 
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-colors text-gray-400 appearance-none"
+                    value={formData.subject}
+                    onChange={(e) => setFormData({...formData, subject: e.target.value})}
+                  >
+                    <option className="bg-[#080808]" value="software">Software Development</option>
+                    <option className="bg-[#080808]" value="finance">Financial Services</option>
+                    <option className="bg-[#080808]" value="other">General Inquiry</option>
                   </select>
                 </div>
                 <div>
@@ -86,13 +161,34 @@ const Contact: React.FC = () => {
                     rows={4}
                     className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:border-blue-500 outline-none transition-colors"
                     placeholder="Tell us about your requirements..."
+                    value={formData.message}
+                    onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    required
                   ></textarea>
                 </div>
-                <button className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
-                  <Send size={18} />
-                  Submit Inquiry
-                </button>
-              </form>
+                {error && (
+                  <div className="text-red-500 text-sm text-center">{error}</div>
+                )}
+                <div>
+                  <button 
+                    disabled={loading}
+                    className="w-full py-4 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity disabled:opacity-50"
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 size={18} className="animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={18} />
+                        Submit Inquiry
+                      </>
+                    )}
+                  </button>
+                </div>
+                </form>
+              )}
             </div>
             {/* Decoration */}
             <div className="absolute -bottom-10 -right-10 w-64 h-64 bg-blue-500/10 blur-3xl rounded-full -z-0"></div>

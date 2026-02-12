@@ -58,10 +58,11 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({ isOpen, onClose }) 
     
     // Combined params for the template
     const templateParams = {
-      admin_email: ADMIN_EMAIL,
-      client_email: formData.email,
+      to_name: 'Admin',
       from_name: formData.name,
       reply_to: formData.email,
+      client_email: formData.email,
+      client_name: formData.name,
       appointment_date: formData.date,
       appointment_time: formData.time,
       service_type: formData.service,
@@ -70,24 +71,19 @@ const AppointmentModal: React.FC<AppointmentModalProps> = ({ isOpen, onClose }) 
     };
 
     try {
-      // Logic: If the template is configured with BCC to admin, we only send once.
-      // But to be 100% sure the user's specific request "send to both" is handled:
-      // We'll use one send call, assuming the template handles both via its internal logic (To: {{client_email}}, BCC: futurebound.tech@gmail.com)
-      // If the user hasn't set BCC, we can send twice programmatically here.
-      
-      // Sending to Client (Template should have To Email: {{client_email}})
+      // Send email to Client
       await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
-        EMAILJS_CONFIG.TEMPLATE_ID,
+        EMAILJS_CONFIG.APPOINTMENT_TEMPLATE_ID,
         { ...templateParams, to_email: formData.email },
         EMAILJS_CONFIG.PUBLIC_KEY
       );
 
-      // Explicitly sending a notification to Admin too
+      // Send email notification to Admin
       await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
-        EMAILJS_CONFIG.TEMPLATE_ID,
-        { ...templateParams, to_email: ADMIN_EMAIL, from_name: `BOOKING: ${formData.name}` },
+        EMAILJS_CONFIG.APPOINTMENT_TEMPLATE_ID,
+        { ...templateParams, to_email: ADMIN_EMAIL, from_name: `NEW BOOKING: ${formData.name}` },
         EMAILJS_CONFIG.PUBLIC_KEY
       );
 

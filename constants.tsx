@@ -28,16 +28,37 @@ export const CONTACT: ContactInfo = {
 
 /**
  * EMAILJS CONFIGURATION
- * To send to both Admin and Client:
- * 1. Create a template in EmailJS.
- * 2. Set "To Email" to {{client_email}} to send to the client.
- * 3. Use the "BCC" field in the EmailJS editor to add: futurebound.tech@gmail.com
- *    OR trigger two separate send calls in the code (implemented in AppointmentModal).
+ * Your EmailJS credentials:
+ * - Public Key (API Key): 7SV2Z2LgC1GENjNY_
+ * - Admin Email: futurebound.tech@gmail.com
+ * 
+ * To set up email templates in EmailJS dashboard:
+ * 1. Create a service in EmailJS (e.g., Gmail or any SMTP service)
+ * 2. Create two email templates:
+ *    - "appointment_template" for appointment booking
+ *    - "contact_template" for contact form submissions
+ * 
+ * Template variables for appointment:
+ * - {{client_name}} - Client's name
+ * - {{client_email}} - Client's email
+ * - {{appointment_date}} - Selected date
+ * - {{appointment_time}} - Selected time
+ * - {{service_type}} - Selected service
+ * - {{meet_link}} - Generated meeting link
+ * - {{company_name}} - Future Bound Tech
+ * 
+ * Template variables for contact:
+ * - {{from_name}} - Sender's name
+ * - {{from_email}} - Sender's email
+ * - {{subject}} - Message subject
+ * - {{message}} - Message content
+ * - {{company_name}} - Future Bound Tech
  */
 export const EMAILJS_CONFIG = {
   SERVICE_ID: 'service_ifj3zce',
   PUBLIC_KEY: '7SV2Z2LgC1GENjNY_',
-  TEMPLATE_ID: 'template_appointment' // User should ensure this ID exists in their dashboard
+  APPOINTMENT_TEMPLATE_ID: 'template_vu8msan', // Your appointment template ID
+  CONTACT_TEMPLATE_ID: 'template_za9og46' // Your contact template ID
 };
 
 export interface DetailedService extends Service {
