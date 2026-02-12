@@ -1,14 +1,18 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import Pillars from './components/Pillars';
 import Services from './components/Services';
 import Projects from './components/Projects';
 import Contact from './components/Contact';
 import Footer from './components/Footer';
 import AnimatedBackground from './components/AnimatedBackground';
+import AppointmentModal from './components/AppointmentModal';
 
 const App: React.FC = () => {
+  const [isAppointmentModalOpen, setIsAppointmentModalOpen] = useState(false);
+
   return (
     <div className="relative min-h-screen">
       {/* Background Layer */}
@@ -16,15 +20,21 @@ const App: React.FC = () => {
       
       {/* Foreground Content */}
       <div className="relative z-10">
-        <Navbar />
+        <Navbar onBookAppointment={() => setIsAppointmentModalOpen(true)} />
         <main>
-          <Hero />
+          <Hero onBookAppointment={() => setIsAppointmentModalOpen(true)} />
+          <Pillars />
           <Services />
           <Projects />
           <Contact />
         </main>
         <Footer />
       </div>
+
+      <AppointmentModal 
+        isOpen={isAppointmentModalOpen} 
+        onClose={() => setIsAppointmentModalOpen(false)} 
+      />
 
       {/* Static Visual Decoration Overlay */}
       <div className="fixed inset-0 pointer-events-none z-5">

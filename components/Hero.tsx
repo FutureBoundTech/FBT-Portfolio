@@ -1,8 +1,19 @@
 
 import React from 'react';
-import { ArrowRight, ChevronDown } from 'lucide-react';
+import { ArrowRight, ChevronDown, Calendar } from 'lucide-react';
 
-const Hero: React.FC = () => {
+interface HeroProps {
+  onBookAppointment: () => void;
+}
+
+const Hero: React.FC<HeroProps> = ({ onBookAppointment }) => {
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 px-6">
       <div className="max-w-4xl mx-auto text-center z-10">
@@ -20,23 +31,26 @@ const Hero: React.FC = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href="#services"
-            className="group px-8 py-4 rounded-full bg-white text-black font-bold flex items-center gap-2 hover:bg-gray-200 transition-all hover:translate-y-[-2px]"
+          <button
+            onClick={onBookAppointment}
+            className="group px-8 py-4 rounded-full bg-blue-600 text-white font-bold flex items-center gap-2 hover:bg-blue-500 transition-all hover:translate-y-[-2px] shadow-xl shadow-blue-500/20"
           >
-            Explore Services
-            <ArrowRight className="group-hover:translate-x-1 transition-transform" size={20} />
-          </a>
-          <a
-            href="#portfolio"
-            className="px-8 py-4 rounded-full glass font-bold hover:bg-white/10 transition-all"
+            <Calendar size={20} />
+            Book Consultation
+          </button>
+          <button
+            onClick={() => scrollTo('portfolio')}
+            className="px-8 py-4 rounded-full glass font-bold hover:bg-white/10 transition-all text-white"
           >
             View Showcase
-          </a>
+          </button>
         </div>
       </div>
 
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-gray-500">
+      <div 
+        className="absolute bottom-10 left-1/2 -translate-x-1/2 animate-bounce text-gray-500 cursor-pointer"
+        onClick={() => scrollTo('services')}
+      >
         <ChevronDown size={32} />
       </div>
 
